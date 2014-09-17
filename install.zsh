@@ -21,7 +21,7 @@ for rcfile in "${ZDOTDIR:-$HOME}"/.zprezto/runcoms/^README.md(.N); do
 done
 
 for rcfile in $HOME/.dotfiles/^(README.md|install.zsh); do
-    if [[ -e "${ZDOTDIR:-$HOME}/.${rcfile:t}" ]]; do
+    if [[ -e "${ZDOTDIR:-$HOME}/.${rcfile:t}" ]]; then
         rm -rf "${ZDOTDIR:-$HOME}/.${rcfile:t}"
     fi
     ln -s "$rcfile" "$HOME/.${rcfile:t}"

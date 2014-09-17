@@ -14,7 +14,7 @@ echo "-- link dotfiles"
 setopt EXTENDED_GLOB
 
 for rcfile in "${ZDOTDIR:-$HOME}"/.zprezto/runcoms/^README.md(.N); do
-    if [[ -e "${ZDOTDIR:-$HOME}/.${rcfile:t}" ]]; do
+    if [[ -e "${ZDOTDIR:-$HOME}/.${rcfile:t}" ]]; then
         rm -rf "${ZDOTDIR:-$HOME}/.${rcfile:t}"
     fi
     ln -s "$rcfile" "${ZDOTDIR:-$HOME}/.${rcfile:t}"

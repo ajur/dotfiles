@@ -6,7 +6,8 @@ if [[ ! -d "${ZDOTDIR:-$HOME}/.zprezto" ]]; then
     git clone --recursive https://github.com/ajur/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"
 elif; then
     cd "${ZDOTDIR:-$HOME}/.zprezto"
-    git pull origin master
+    git fetch --all
+    git reset --hard origin/master
 fi
 
 echo "-- link dotfiles"

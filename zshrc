@@ -67,18 +67,14 @@ function gbrm {
   # git branch remove
   git branch -D $1 && git push origin :$1
 }
-alias gbpg='git branch -vv | awk "/: gone/{print $1}" | xargs git branch -d'
-
-# better search
-autoload -U up-line-or-beginning-search
-autoload -U down-line-or-beginning-search
-zle -N up-line-or-beginning-search
-zle -N down-line-or-beginning-search
-bindkey "^[[A" up-line-or-beginning-search # Up
-bindkey "^[[B" down-line-or-beginning-search # Down
-
-# pico8
-alias pico8=/Applications/PICO-8.app/Contents/MacOS/pico8
+function gbdg {
+    git pull -p > /dev/null
+    git branch -vv | awk '/: gone/{print $1}' | xargs git branch -d
+}
+function gbDg {
+    git pull -p > /dev/null
+    git branch -vv | awk '/: gone/{print $1}' | xargs git branch -D
+}
 
 function glmonth {
     SERVER=""
@@ -98,6 +94,16 @@ function glmonth {
     fi
 }
 
+# better search
+autoload -U up-line-or-beginning-search
+autoload -U down-line-or-beginning-search
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
+bindkey "^[[A" up-line-or-beginning-search # Up
+bindkey "^[[B" down-line-or-beginning-search # Down
+
+# pico8
+alias pico8=/Applications/PICO-8.app/Contents/MacOS/pico8
 
 ### added by jabba
 [ -s "/Users/adam.jurczyk/.jabba/jabba.sh" ] && source "/Users/adam.jurczyk/.jabba/jabba.sh"

@@ -46,7 +46,6 @@ alias gp='git push'
 alias gws='git status --short'
 alias gl='git log --graph --all --date-order --pretty=format:"${_git_log_oneline_format}"'
 alias glb='git log --graph --date-order --pretty=format:"${_git_log_oneline_format}"'
-alias glmd='git log --grep="Merge pull request" master..develop --pretty=format:"%s" | cut -d\  -f 8 | sort -u'
 
 # macOS specific
 if [[ "$OSTYPE" == darwin* ]]; then
@@ -62,6 +61,7 @@ fi
 alias dus='du -hs'
 alias srvdir='python3 -m "http.server"'
 alias wg='curl -O'
+alias glmd='git log --grep="Merge pull request" master..develop --pretty=format:"%s" | cut -d\  -f 8 | sort -u'
 
 function gbrm {
   # git branch remove
@@ -76,6 +76,7 @@ function gbDg {
     git branch -vv | awk '/: gone/{print $1}' | xargs git branch -D
 }
 
+# print all commits links from given month
 function glmonth {
     SERVER=""
     MONTH=$1
@@ -103,17 +104,55 @@ bindkey "^[[A" up-line-or-beginning-search # Up
 bindkey "^[[B" down-line-or-beginning-search # Down
 
 # pico8
-alias pico8=/Applications/PICO-8.app/Contents/MacOS/pico8
+if [[ -f /Applications/PICO-8.app/Contents/MacOS/pico8 ]]; then
+    alias pico8=/Applications/PICO-8.app/Contents/MacOS/pico8
+fi
 
-### added by jabba
-[ -s "/Users/adam.jurczyk/.jabba/jabba.sh" ] && source "/Users/adam.jurczyk/.jabba/jabba.sh"
+### haskell
+[ -f "$HOME/.ghcup/env" ] && source "$HOME/.ghcup/env" # ghcup-env
 
 ### nvm
 export NVM_DIR="$HOME/.nvm"
 [ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"  # This loads nvm
 [ -s "/usr/local/opt/nvm/etc/bash_completion.d/nvm" ] && . "/usr/local/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
 
-### haskell
-[ -f "/Users/adam.jurczyk/.ghcup/env" ] && source "/Users/adam.jurczyk/.ghcup/env" # ghcup-env
+function run_nvm_use_for_current_dir {
+    nvmrc_files=`ls (../)#.nvmrc(:a) 2>/dev/null`
+    node_version=`node -v`
+    
+    if [[ -z $nvmrc_files ]]
+    then
+        default_nvm_node_version=`nvm version default`
+        if [[ $default_nvm_node_version != $node_version ]]
+        then
+            nvm use default
+        fi
+        return
+    fi
 
+    nvmrc_node_version=`echo $nvmrc_files | tail -1 | xargs cat 2> /dev/null`
+    
+    if [[ $nvmrc_node_version != $node_version ]]
+    then
+        nvm use $nvmrc_node_version
+    fi
+}
 
+### on dir change
+function chpwd {
+    run_nvm_use_for_current_dir
+}
+chpwd # run for new shell also
+
+if [[ -f $HOME/.zshrc.local ]]; then
+  source $HOME/.zshrc.local
+fi
+
+### pyenv init
+if command -v pyenv 1>/dev/null 2>&1; then
+  eval "$(pyenv init -)"
+fi
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="$HOME/.sdkman"
+[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"

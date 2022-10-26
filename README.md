@@ -9,7 +9,7 @@ Also, as for ZSH configs, this time I'm testing [slimzsh](https://github.com/cha
 
 Install [Homebrew](https://brew.sh/)
 
-Set brew zsh as default: 
+Set brew zsh as default (if not used already)
 ```
 > brew install zsh zsh-completions
 > sudo dscl . -create /Users/$USER UserShell /usr/local/bin/zsh
@@ -24,7 +24,7 @@ Clone and run install script:
 
 Install some usefull tools, check out [modern unix](https://github.com/ibraheemdev/modern-unix) for more
 ```
-brew install tldr fasd jq fd
+brew install tldr fasd jq fd the_silver_searcher nvm
 ```
 
 For compaudit issue, run
@@ -34,4 +34,4 @@ for f in $(compaudit);do sudo chmod -R 755 $f;done;
 
 **MS Code**: Search for `shell command` to add/remove `code` command
 
-**Java**: https://github.com/shyiko/jabba
+**Java**: https://sdkman.io/

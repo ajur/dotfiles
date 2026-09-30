@@ -9,4 +9,10 @@ defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 60 \
 # apply keyboard shortcut changes without logging out
 /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
 
+# show Ghostty on all desktops (Dock icon is hidden, so it can't be set from its menu)
+if ! defaults read com.apple.spaces app-bindings 2>/dev/null | grep -q '"com.mitchellh.ghostty" = AllSpaces'; then
+  defaults write com.apple.spaces app-bindings -dict-add com.mitchellh.ghostty AllSpaces
+  killall Dock
+fi
+
 echo "done"

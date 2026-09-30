@@ -1,0 +1,149 @@
+#!/usr/bin/env zsh
+# manage dotfiles: update everything, check for updates, list what's available
+
+DOTFILES=${0:A:h:h}
+ZPLUGINS=${XDG_DATA_HOME:-$HOME/.local/share}/zsh/plugins
+STATE=${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles
+
+function step {
+  print -P "%F{blue}==>%f %B$1%b"
+}
+
+function update_plugins {
+  local p
+  for p in $ZPLUGINS/*(/N); do
+    if git -C $p pull --quiet --ff-only; then
+      print "  ${p:t}"
+    else
+      print -P "  ${p:t}: %F{red}update failed%f"
+    fi
+  done
+}
+
+function cmd_update {
+  step "dotfiles repo"
+  git -C $DOTFILES pull --ff-only || print -P "  %F{yellow}pull failed, continuing%f"
+
+  step "links"
+  $DOTFILES/install.sh
+
+  step "zsh plugins"
+  update_plugins
+
+  if (( $+commands[brew] )); then
+    step "brew"
+    brew update && brew upgrade
+  fi
+
+  mkdir -p $STATE
+  : >| $STATE/notice
+  touch $STATE/last-check
+  print -P "%F{green}done%f, open a new shell to apply"
+}
+
+# updates zsh plugins, only reports other updates; meant to run in background
+function cmd_check {
+  mkdir -p $STATE
+  touch $STATE/last-check
+
+  # never prompt for credentials or ssh passphrases
+  export GIT_TERMINAL_PROMPT=0
+  export GIT_SSH_COMMAND='ssh -o BatchMode=yes'
+
+  local -a notes
+
+  update_plugins >/dev/null 2>&1
+
+  if git -C $DOTFILES fetch --quiet 2>/dev/null; then
+    local behind=$(git -C $DOTFILES rev-list --count HEAD..@{upstream} 2>/dev/null)
+    (( behind )) && notes+=("dotfiles repo: $behind new commit(s)")
+  fi
+
+  if (( $+commands[brew] )); then
+    brew update --quiet >/dev/null 2>&1
+    local -a outdated=(${(f)"$(brew outdated --quiet 2>/dev/null)"})
+    (( $#outdated )) && notes+=("brew: $#outdated outdated package(s)")
+  fi
+
+  if (( $#notes )); then
+    print -l -- $notes >| $STATE/notice
+  else
+    : >| $STATE/notice
+  fi
+}
+
+# help entries from "##" comments:
+#   ## text                   describes the alias/function right below it
+#   ## NAME -- text           standalone entry (keys, tips, ...)
+#   ## [section] ...          put entry under section instead of the file name
+# tagged sections are listed first, then file sections, in order of appearance
+function list_help {
+  awk -v bold="$1" -v reset="$2" '
+    function section(f) { sub(/.*\//, "", f); sub(/\.[^.]*$/, "", f); return f }
+    function add(tag, name, desc,  s) {
+      s = tag != "" ? tag : section(FILENAME)
+      if (!(s in cnt)) {
+        if (tag != "") tagged[++nt] = s; else files[++nf] = s
+        cnt[s] = 0
+      }
+      items[s, ++cnt[s]] = sprintf("  %-10s %s", name, desc)
+    }
+    function out(s,  j) {
+      printf "\n%s%s%s\n", bold, s, reset
+      for (j = 1; j <= cnt[s]; j++) print items[s, j]
+    }
+    FNR == 1 { pend = "" }
+    /^[[:space:]]*##([[:space:]]|$)/ {
+      t = $0; sub(/^[[:space:]]*##[[:space:]]*/, "", t)
+      tag = ""
+      if (t ~ /^\[[^]]+\]/) {
+        tag = substr(t, 2, index(t, "]") - 2)
+        t = substr(t, index(t, "]") + 1); sub(/^[[:space:]]+/, "", t)
+      }
+      if ((i = index(t, " -- ")) > 0) { add(tag, substr(t, 1, i - 1), substr(t, i + 4)); pend = "" }
+      else { pend = t; ptag = tag }
+      next
+    }
+    /^[[:space:]]*(#|if )/ { next }
+    /^[[:space:]]*(alias|function) [A-Za-z0-9_-]+/ {
+      if (pend != "") {
+        n = $0; sub(/^[[:space:]]*(alias|function) /, "", n); sub(/[^A-Za-z0-9_-].*/, "", n)
+        add(ptag, n, pend)
+      }
+      pend = ""; next
+    }
+    { pend = "" }
+    END {
+      for (i = 1; i <= nt; i++) out(tagged[i])
+      for (i = 1; i <= nf; i++) out(files[i])
+    }
+  ' $DOTFILES/zsh/*.zsh(N) $HOME/.zshrc(N:A)
+}
+
+function cmd_help {
+  local bold reset
+  [[ -t 1 ]] && bold=$'\e[1m' reset=$'\e[0m'
+
+  cat <<EOF
+usage: dots <command>
+
+  update     pull repo, relink (install.sh), update zsh plugins and brew packages
+  check      update zsh plugins, look for other updates (runs weekly in background)
+  help       show this help
+EOF
+
+  list_help "$bold" "$reset"
+
+  print "\n${bold}scripts${reset}"
+  local f
+  for f in $DOTFILES/bin/*(N.x); do
+    printf "  %-16s %s\n" ${f:t} "$(awk 'NR > 1 && /^#/ { sub(/^#[[:space:]]*/, ""); if ($0 != "") { print; exit } }' $f)"
+  done
+}
+
+case $1 in
+  update) cmd_update ;;
+  check) cmd_check ;;
+  help|'') cmd_help ;;
+  *) print "unknown command: $1"; cmd_help; exit 1 ;;
+esac

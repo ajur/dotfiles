@@ -1,0 +1,124 @@
+#!/bin/bash
+
+# Script to rename images with DateTimeOriginal prefix extracted from EXIF data
+# Supports JPEG and PNG files
+# Requires exiftool to be installed
+# Usage: ./rename_with_exif_date [directory] [-dryrun]
+
+# Show help function
+show_help() {
+    echo "Usage: $(basename "$0") [directory] [options]"
+    echo ""
+    echo "Rename image files with EXIF DateTimeOriginal prefix"
+    echo ""
+    echo "Arguments:"
+    echo "  directory         Target directory to process (default: current directory)"
+    echo ""
+    echo "Options:"
+    echo "  -h, --help        Show this help message"
+    echo "  -n, --dry-run     Show what would be renamed without making changes"
+    echo ""
+    echo "Examples:"
+    echo "  $(basename "$0")                   # Process current directory"
+    echo "  $(basename "$0") /path/to/photos   # Process specific directory"
+    echo "  $(basename "$0") --dry-run         # Preview changes without renaming"
+    echo ""
+    echo "Supported formats: JPEG, PNG"
+    echo "Requires: exiftool"
+    echo ""
+    echo "Output format: YYYY-MM-DD_HH-MM-SS_originalname.ext (lowercase)"
+}
+
+# Parse arguments
+DRYRUN=false
+TARGET_DIR="."
+
+for arg in "$@"; do
+    case $arg in
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        -n|--dry-run)
+            DRYRUN=true
+            shift
+            ;;
+        *)
+            if [ -d "$arg" ]; then
+                TARGET_DIR="$arg"
+            fi
+            shift
+            ;;
+    esac
+done
+
+if [ "$DRYRUN" = true ]; then
+    echo "DRY RUN MODE - No files will be renamed"
+fi
+
+echo "Processing images in: $TARGET_DIR"
+echo "-----------------------------------"
+
+# Counter for statistics
+total=0
+renamed=0
+skipped=0
+
+# Use process substitution instead of pipe to preserve variables
+while IFS= read -r -d '' file; do
+    ((total++))
+    
+    # Get the filename and directory
+    filename=$(basename "$file")
+    dirname=$(dirname "$file")
+    
+    # Extract DateTimeOriginal using exiftool
+    datetime=$(exiftool -DateTimeOriginal -S -s "$file" 2>/dev/null)
+    
+    if [ -n "$datetime" ]; then
+        # Convert "2024:11:12 11:25:20" to "2024-11-12_11-25-20"
+        # Replace : with - for date, replace space with _, replace : with - for time
+        date_prefix=$(echo "$datetime" | sed 's/:/-/g' | sed 's/ /_/')
+        
+        # Create new filename: dateprefix_originalname (all lowercase)
+        extension="${filename##*.}"
+        name_without_ext="${filename%.*}"
+        new_filename="${date_prefix}_${name_without_ext}.${extension}"
+        new_filename=$(echo "$new_filename" | tr '[:upper:]' '[:lower:]')
+        
+        # Full paths
+        new_path="$dirname/$new_filename"
+        
+        # Check if filename already starts with the correct date prefix
+        if [[ "$filename" == ${date_prefix}_* ]]; then
+            echo "⏭️  SKIP: $filename (already has correct date prefix)"
+            ((skipped++))
+        elif [ -e "$new_path" ]; then
+            echo "⚠️  SKIP: $filename (target already exists: $new_filename)"
+            ((skipped++))
+        else
+            if [ "$DRYRUN" = true ]; then
+                echo "✓ [DRY RUN] Would rename: $filename"
+                    echo "                      to: $new_filename"
+                else
+                    echo "✓ Rename: $filename"
+                    echo "      to: $new_filename"
+                    mv "$file" "$new_path"
+                fi
+                ((renamed++))
+            fi
+    else
+        echo "⚠️  SKIP: $filename (no DateTimeOriginal found)"
+        ((skipped++))
+    fi
+done < <(find "$TARGET_DIR" -maxdepth 1 -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \) -print0)
+
+echo "-----------------------------------"
+echo "Summary:"
+echo "  Total files processed: $total"
+if [ "$DRYRUN" = true ]; then
+    echo "  Would be renamed: $renamed"
+else
+    echo "  Successfully renamed: $renamed"
+fi
+echo "  Skipped: $skipped"

@@ -1,0 +1,43 @@
+unlet! skip_defaults_vim
+source $VIMRUNTIME/defaults.vim
+
+set hidden
+set title
+set number
+set nowrap
+set sidescroll=1
+set sidescrolloff=3
+set laststatus=2
+set statusline=%F\ %m%r%h%w%y[%{&ff}]%=%l,%v\ %P\ %L
+set wildmode=list:longest,full
+set ignorecase
+set smartcase
+set belloff=all
+
+set tabstop=4
+set shiftwidth=4
+set softtabstop=4
+set shiftround
+set expandtab
+set autoindent
+
+if !isdirectory($HOME . '/.cache/vim')
+  call mkdir($HOME . '/.cache/vim', 'p')
+endif
+set directory=~/.cache/vim//
+
+let g:netrw_dirhistmax = 0
+
+if has('termguicolors')
+  set termguicolors
+endif
+silent! colorscheme habamax
+
+nmap <C-h> :bp<CR>
+nmap <C-l> :bn<CR>
+
+set spelllang=pl,en
+map <silent><F7> :setlocal spell!<CR>
+imap <silent><F7> <ESC>:setlocal spell!<CR>a
+
+packadd! matchit

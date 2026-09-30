@@ -1,0 +1,14 @@
+{
+  "disableClaudeAiConnectors": true,
+  "skillOverrides": {},
+  "disableRemoteControl": true,
+  "disableWorkflows": true,
+  "disableArtifact": true,
+  "effortLevel": "high",
+  "theme": "dark",
+  "modelSettings": {
+    "claude-opus-5-5": {
+      "effortLevel": "high"
+    }
+  }
+}

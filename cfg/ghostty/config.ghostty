@@ -1,0 +1,26 @@
+# Reload: Cmd+Shift+,
+# Docs: https://ghostty.org/docs/config/reference
+
+font-family = "DaddyTimeMono Nerd Font"
+font-size = 16
+
+# ./themes/iterm-custom
+theme = iterm-custom
+
+cursor-style = bar
+adjust-cursor-thickness = 4
+
+window-padding-x = 5
+window-padding-y = 5
+macos-titlebar-style = tabs
+# reopen windows and tabs after restart
+window-save-state = always
+confirm-close-surface = false
+# no Dock icon and not in Cmd+Tab, toggled via Hammerspoon hotkey
+macos-hidden = always
+
+# left Option acts as Alt, right Option types Polish letters
+macos-option-as-alt = left
+
+# install terminfo and set env on ssh hosts, avoids "unknown terminal type"
+shell-integration-features = ssh-env,ssh-terminfo

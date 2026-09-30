@@ -66,6 +66,7 @@ export SAVEHIST=1000000
 setopt HIST_IGNORE_ALL_DUPS
 setopt HIST_FIND_NO_DUPS
 setopt HIST_REDUCE_BLANKS
+setopt HIST_SAVE_NO_DUPS
 
 export PATH="$HOME/.dotfiles/bin:$PATH"
 if [[ -d "$HOME/bin" ]]; then
@@ -128,13 +129,29 @@ function glhist {
   fi
 }
 
-# better search
-autoload -U up-line-or-beginning-search
-autoload -U down-line-or-beginning-search
-zle -N up-line-or-beginning-search
-zle -N down-line-or-beginning-search
-bindkey "^[[A" up-line-or-beginning-search # Up
-bindkey "^[[B" down-line-or-beginning-search # Down
+### history search
+# fzf: Ctrl+R fuzzy history, Ctrl+T files, Alt+C cd
+if command -v fzf >/dev/null 2>&1; then
+  source <(fzf --zsh)
+fi
+
+# Up: step through recent entries, or fuzzy search (fzf) if something is already typed
+function history-up-or-fzf {
+  if [[ -z $BUFFER || $LASTWIDGET == (history-up-or-fzf|down-line-or-history) ]]; then
+    zle up-line-or-history
+  else
+    zle fzf-history-widget
+  fi
+}
+zle -N history-up-or-fzf
+bindkey "^[[A" history-up-or-fzf # Up
+bindkey "^[OA" history-up-or-fzf # Up
+bindkey "^[[B" down-line-or-history # Down
+bindkey "^[OB" down-line-or-history # Down
+
+# inline suggestions from history, accept with Right/End
+[[ -f "${HOMEBREW_PREFIX:-/opt/homebrew}/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]] && \
+  source "${HOMEBREW_PREFIX:-/opt/homebrew}/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
 
 # pico8
 if [[ -f /Applications/PICO-8.app/Contents/MacOS/pico8 ]]; then

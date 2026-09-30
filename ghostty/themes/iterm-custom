@@ -1,0 +1,31 @@
+# Custom palette converted from iTerm2 "Default" profile
+
+background = #140323
+foreground = #d2cabc
+
+cursor-color = #16ffb7
+cursor-text = #000000
+
+selection-background = #287691
+selection-foreground = #ffffff
+
+# ANSI 0-7 (normal)
+palette = 0=#000000
+palette = 1=#ff260e
+palette = 2=#9be205
+palette = 3=#ffc400
+palette = 4=#00a2fa
+#palette = 5=#815bb5
+palette = 5=#c930c7
+palette = 6=#00deef
+palette = 7=#ffffff
+
+# ANSI 8-15 (bright)
+palette = 8=#565656
+palette = 9=#ff4250
+palette = 10=#b8e36e
+palette = 11=#ffd852
+palette = 12=#00a6ff
+palette = 13=#ac7bf0
+palette = 14=#74fdf3
+palette = 15=#ffffff

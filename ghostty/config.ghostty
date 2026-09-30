@@ -1,0 +1,114 @@
+# =============================================================
+# Ghostty config - translated from iTerm2 "Default" profile
+# Location: ~/.config/ghostty/config.ghostty (symlink from dotfiles)
+# Reload: Cmd+Shift+,    Check: ghostty +show-config
+# Note: comments must be on their own line (no trailing # comments)
+# =============================================================
+
+
+# -------------------------------------------------------------
+# Font
+# -------------------------------------------------------------
+
+# iTerm2: "DaddyTimeMonoNF 16"
+# Verify exact family name with: ghostty +list-fonts | grep -i daddy
+font-family = "DaddyTimeMono Nerd Font"
+font-size = 16
+
+# iTerm2: ligatures were off
+#font-feature = -calt
+#font-feature = -liga
+
+# iTerm2: "Use Bright Bold" (bold text uses bright colors)
+#bold-is-bright = true
+
+
+# -------------------------------------------------------------
+# Colors
+# -------------------------------------------------------------
+
+# Custom themes in ./themes (old iTerm2 palette: iterm-custom)
+theme = iterm-custom
+
+# iTerm2 had no transparency or blur
+#background-opacity = 1
+
+# Background image (you've moved to a solid color; uncomment to bring it back)
+#background-image = ~/path/to/image.jpeg
+#background-image-opacity = 0.2
+
+
+# -------------------------------------------------------------
+# Cursor
+# -------------------------------------------------------------
+
+# iTerm2: box cursor, not blinking
+cursor-style = bar
+adjust-cursor-thickness = 4
+#cursor-style-blink = false
+
+
+# -------------------------------------------------------------
+# Window & tabs
+# -------------------------------------------------------------
+
+# iTerm2: 5px side and top/bottom margins
+window-padding-x = 5
+window-padding-y = 5
+
+# Tabs in the title bar, compact (closest to iTerm2's minimal tab style)
+macos-titlebar-style = tabs
+
+# Initial size in cells (iTerm2: 120 columns x 40 rows)
+#window-width = 120
+#window-height = 40
+
+# Keep Ghostty running with no windows (the Hammerspoon toggle relies on this)
+quit-after-last-window-closed = false
+
+# New tabs open in the current tab's directory (iTerm2: "Reuse previous session's directory")
+window-inherit-working-directory = true
+
+window-save-state = always
+
+# iTerm2: "Prompt before closing" was off
+confirm-close-surface = false
+
+# iTerm2 hid the app from Dock and app switcher.
+# Leave this commented at first: you need the Dock icon to set
+# Options -> Assign To: All Desktops. Try enabling it afterwards.
+#macos-hidden = always
+
+
+# -------------------------------------------------------------
+# Keyboard
+# -------------------------------------------------------------
+
+# Left Option acts as Alt, right Option types Polish letters (a -> ą etc.)
+macos-option-as-alt = left
+
+# Hotkey toggle is handled by Hammerspoon (~/.hammerspoon/init.lua),
+# so there's no global keybind here. Tabs use macOS defaults:
+# Cmd+T new tab, Cmd+W close, Cmd+1..9 jump, Cmd+Shift+[ ] prev/next.
+
+# keybind = super+shift+arrow_left=move_tab:-1
+# keybind = super+shift+arrow_right=move_tab:1
+
+
+# -------------------------------------------------------------
+# Shell integration
+# -------------------------------------------------------------
+
+# no-cursor: keep your block cursor at the prompt (Ghostty otherwise switches to a bar)
+# ssh-env / ssh-terminfo: avoid "unknown terminal type" errors when SSH-ing to servers
+# (iTerm2 used xterm-256color; Ghostty uses xterm-ghostty)
+shell-integration-features = no-cursor,ssh-env,ssh-terminfo
+
+
+# -------------------------------------------------------------
+# Scrollback
+# -------------------------------------------------------------
+
+# iTerm2: 5000 lines. Ghostty's limit is in bytes; the default (~10 MB)
+# already holds far more than 5000 lines, so it's left at default.
+# scrollback-limit = 10000000

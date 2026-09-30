@@ -22,7 +22,7 @@ fpath+=("$(brew --prefix)/share/zsh/site-functions")
 
 Install some usefull tools, check out [modern unix](https://github.com/ibraheemdev/modern-unix) for more
 ```
-brew install tldr fasd jq fd the_silver_searcher python3 fnm
+brew install tldr jq fd the_silver_searcher python3 fnm fzf zsh-autosuggestions
 
 python3 -m venv ~/.py3
 ~/.py3/bin/pip install shell-gpt

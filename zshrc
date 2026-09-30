@@ -39,10 +39,13 @@ alias gco='git checkout'
 alias gcb='git checkout -b'
 alias gc='git commit --verbose'
 alias gcm='git commit --message'
+alias gcane='git commit --amend --no-edit'
+alias gri='git rebase -i'
 alias gaa='git add .'
 alias gpp='git pull --prune'
 alias gm='git merge'
 alias gp='git push'
+alias gpf='git push --force'
 alias gws='git status --short'
 alias gl='git log --graph --all --date-order --pretty=format:"${_git_log_oneline_format}"'
 alias glb='git log --graph --date-order --pretty=format:"${_git_log_oneline_format}"'
@@ -58,19 +61,32 @@ fi
 ###################################################################################
 ### custom stuff
 
+export HISTSIZE=1000000
+export SAVEHIST=1000000
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_FIND_NO_DUPS
+setopt HIST_REDUCE_BLANKS
+
+export PATH="$HOME/.dotfiles/bin:$PATH"
+if [[ -d "$HOME/bin" ]]; then
+  export PATH="$HOME/bin:$PATH"
+fi
+
 alias dus='du -hs'
 alias srvdir='python3 -m "http.server"'
 alias wg='curl -O'
 alias glmd='git log --grep="Merge pull request" master..develop --pretty=format:"%s" | cut -d\  -f 8 | sort -u'
 
+# git branch remove: force-delete local branch $1 and delete it on origin
 function gbrm {
-  # git branch remove
   git branch -D $1 && git push origin :$1
 }
+# git branch delete gone: prune remotes, then delete local branches whose upstream is gone (safe, merged only)
 function gbdg {
     git pull -p > /dev/null
     git branch -vv | awk '/: gone/{print $1}' | xargs git branch -d
 }
+# git branch Delete gone: same as gbdg but force-deletes, including unmerged branches
 function gbDg {
     git pull -p > /dev/null
     git branch -vv | awk '/: gone/{print $1}' | xargs git branch -D
@@ -95,6 +111,23 @@ function glmonth {
     fi
 }
 
+function glhist {
+  SERVER=""
+  MONTH=$1
+  REPO=`git config --get remote.origin.url | sed "s/\(git@[^:]*:\)*\(http[s]*:\/\/[^/]*\/\)*\(.*\)\.git$/\3/"`
+  AUTHOR=`git config --get user.email`
+  if [[ ! $MONTH =~ ^[0-9]{4}-[0-9]{2}$ ]]
+  then
+      echo "Provide month in format YYYY-MM\nExample: $0 2018-04"
+  elif [[ -z "$REPO" ||  -z "$AUTHOR" ]]
+  then
+      echo "Cannot find author and/or remote url.\nBe sure to run this command in git repository?"
+  else
+      echo "commits authored by $AUTHOR after $MONTH within $REPO repository"
+      git log --author="$AUTHOR" --after="$MONTH-01" --oneline --pretty=format:"%ad - %s" --date=short --branches
+  fi
+}
+
 # better search
 autoload -U up-line-or-beginning-search
 autoload -U down-line-or-beginning-search
@@ -111,41 +144,18 @@ fi
 ### haskell
 [ -f "$HOME/.ghcup/env" ] && source "$HOME/.ghcup/env" # ghcup-env
 
-### nvm
-export NVM_DIR="$HOME/.nvm"
-[ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"  # This loads nvm
-[ -s "/usr/local/opt/nvm/etc/bash_completion.d/nvm" ] && . "/usr/local/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
-
-function run_nvm_use_for_current_dir {
-    nvmrc_files=`ls (../)#.nvmrc(:a) 2>/dev/null`
-    node_version=`node -v`
-    
-    if [[ -z $nvmrc_files ]]
-    then
-        default_nvm_node_version=`nvm version default`
-        if [[ $default_nvm_node_version != $node_version ]]
-        then
-            nvm use default
-        fi
-        return
-    fi
-
-    nvmrc_node_version=`echo $nvmrc_files | tail -1 | xargs cat 2> /dev/null`
-    
-    if [[ $nvmrc_node_version != $node_version ]]
-    then
-        nvm use $nvmrc_node_version
-    fi
-}
-
-### on dir change
-function chpwd {
-    run_nvm_use_for_current_dir
-}
-chpwd # run for new shell also
+### fast node manager
+eval "$(fnm env --use-on-cd --version-file-strategy recursive)"
+eval "$(fnm completions --shell zsh)"
+alias nvm='echo "nvm is slow... using fnm instead\n\n" && fnm'
 
 if [[ -f $HOME/.zshrc.local ]]; then
   source $HOME/.zshrc.local
+fi
+
+### direnv to handle per-dir env vars
+if command -v direnv >/dev/null 2>&1; then
+  eval "$(direnv hook zsh)"
 fi
 
 ### pyenv init
@@ -153,6 +163,16 @@ if command -v pyenv 1>/dev/null 2>&1; then
   eval "$(pyenv init -)"
 fi
 
+### pipx
+export PATH="$PATH:$HOME/.local/bin"
+
+### or ditch pyenv, and just go with single venv
+if [[ -d "$HOME/.py3" ]]; then
+  export PATH="$HOME/.py3/bin:$PATH"
+  export PYTHON="$HOME/.py3/bin/python"
+fi
+
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+

@@ -13,3 +13,7 @@ for rcfile in $HOME/.dotfiles/^(README.md|install.zsh|.*); do
     fi
     ln -s "$rcfile" "$HOME/.${rcfile:t}"
 done
+
+echo "-- post install setup"
+
+git config --global core.excludesFile '~/.gitignore_global'

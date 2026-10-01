@@ -1,8 +1,4 @@
 -- iTerm2-style hotkey window using a regular Ghostty window (with native tabs).
---
--- Setup:
---   1. Ghostty Dock icon -> Options -> Assign To: All Desktops
---   2. Hammerspoon needs Accessibility permission
 
 local M = {}
 

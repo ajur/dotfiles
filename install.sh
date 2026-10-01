@@ -11,6 +11,7 @@ cfg/vimrc               .vimrc
 cfg/tmux.conf           .tmux.conf
 cfg/gitconfig           .gitconfig
 cfg/gitignore           .config/git/ignore
+cfg/direnv.toml         .config/direnv/direnv.toml
 cfg/npmrc               .npmrc
 cfg/claude/CLAUDE.md    .claude/CLAUDE.md
 cfg/claude/settings.json .claude/settings.json
@@ -34,6 +35,7 @@ ZSH_PLUGINS="
 pure                      https://github.com/sindresorhus/pure.git
 fast-syntax-highlighting  https://github.com/zdharma-continuum/fast-syntax-highlighting.git
 zsh-autosuggestions       https://github.com/zsh-users/zsh-autosuggestions.git
+zsh-you-should-use        https://github.com/MichaelAquilina/zsh-you-should-use.git
 "
 
 usage() {

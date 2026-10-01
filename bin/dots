@@ -32,7 +32,9 @@ function cmd_update {
 
   if (( $+commands[brew] )); then
     step "brew"
-    brew update && brew upgrade
+    brew update
+    [[ $OSTYPE == darwin* ]] && brew bundle install --file $DOTFILES/Brewfile
+    brew upgrade
   fi
 
   mkdir -p $STATE
@@ -56,13 +58,19 @@ function cmd_check {
 
   if git -C $DOTFILES fetch --quiet 2>/dev/null; then
     local behind=$(git -C $DOTFILES rev-list --count HEAD..@{upstream} 2>/dev/null)
-    (( behind )) && notes+=("dotfiles repo: $behind new commit(s)")
+    (( behind )) && notes+=("dotfiles repo: $behind new commit(s) to pull")
   fi
 
   if (( $+commands[brew] )); then
     brew update --quiet >/dev/null 2>&1
     local -a outdated=(${(f)"$(brew outdated --quiet 2>/dev/null)"})
-    (( $#outdated )) && notes+=("brew: $#outdated outdated package(s)")
+    (( $#outdated )) && notes+=("brew outdated: ${(j:, :)outdated}")
+    if [[ $OSTYPE == darwin* ]]; then
+      # "→ Cask ollama-app needs to be installed." -> ollama-app
+      local -a missing=(${(M)${(f)"$(brew bundle check --verbose --no-upgrade --file $DOTFILES/Brewfile 2>/dev/null)"}:#→ *})
+      missing=(${${missing#→ * }%% *})
+      (( $#missing )) && notes+=("brew missing: ${(j:, :)missing}")
+    fi
   fi
 
   if (( $#notes )); then
@@ -76,6 +84,7 @@ function cmd_check {
 #   ## text                   describes the alias/function right below it
 #   ## NAME -- text           standalone entry (keys, tips, ...)
 #   ## [section] ...          put entry under section instead of the file name
+# in Brewfile, "##" describes the brew/cask/mas entry below it
 # tagged sections are listed first, then file sections, in order of appearance
 function list_help {
   awk -v bold="$1" -v reset="$2" '
@@ -86,11 +95,16 @@ function list_help {
         if (tag != "") tagged[++nt] = s; else files[++nf] = s
         cnt[s] = 0
       }
-      items[s, ++cnt[s]] = sprintf("  %-10s %s", name, desc)
+      names[s, ++cnt[s]] = name; descs[s, cnt[s]] = desc
+      if (length(name) > width[s]) width[s] = length(name)
     }
-    function out(s,  j) {
+    function out(s,  j, w) {
       printf "\n%s%s%s\n", bold, s, reset
-      for (j = 1; j <= cnt[s]; j++) print items[s, j]
+      w = width[s] > 12 ? 12 : width[s]
+      for (j = 1; j <= cnt[s]; j++) {
+        if (length(names[s, j]) > w) printf "  %s\n  %-*s  %s\n", names[s, j], w, "", descs[s, j]
+        else printf "  %-*s  %s\n", w, names[s, j], descs[s, j]
+      }
     }
     FNR == 1 { pend = "" }
     /^[[:space:]]*##([[:space:]]|$)/ {
@@ -112,12 +126,16 @@ function list_help {
       }
       pend = ""; next
     }
+    /^[[:space:]]*(brew|cask|mas) "/ {
+      if (pend != "") { n = $0; sub(/^[^"]*"/, "", n); sub(/".*/, "", n); add(ptag, n, pend) }
+      pend = ""; next
+    }
     { pend = "" }
     END {
       for (i = 1; i <= nt; i++) out(tagged[i])
       for (i = 1; i <= nf; i++) out(files[i])
     }
-  ' $DOTFILES/zsh/*.zsh(N) $HOME/.zshrc(N:A)
+  ' $DOTFILES/zsh/*.zsh(N) $HOME/.zshrc(N:A) $DOTFILES/Brewfile(N)
 }
 
 function cmd_help {
@@ -127,7 +145,7 @@ function cmd_help {
   cat <<EOF
 usage: dots <command>
 
-  update     pull repo, relink (install.sh), update zsh plugins and brew packages
+  update     pull repo, relink (install.sh), update zsh plugins, brew bundle + upgrade
   check      update zsh plugins, look for other updates (runs weekly in background)
   help       show this help
 EOF

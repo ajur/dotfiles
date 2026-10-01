@@ -10,4 +10,4 @@ source $ZDOT/aliases.zsh
 source $ZDOT/git.zsh
 source $ZDOT/node.zsh
 source $ZDOT/tools.zsh
-source $ZDOT/update-check.zsh
+source $ZDOT/welcome.zsh

@@ -30,15 +30,16 @@ git clone https://github.com/ajur/dotfiles.git ~/.dotfiles
 ~/.dotfiles/install.sh
 ```
 
-Tools and apps I use:
+Tools and apps I use are in the `Brewfile` (`dots help` lists them with a short note on what for):
 ```
-brew install fzf fnm direnv jq fd ripgrep tlrc git-lfs
-brew install --cask ghostty hammerspoon font-daddy-time-mono-nerd-font
+brew bundle --file ~/.dotfiles/Brewfile
 ```
 
 Few things macOS won't let me script:
 - Hammerspoon needs Accessibility permission (System Settings → Privacy & Security → Accessibility)
 - Ghostty needs a restart after install. It's hidden from Dock and Cmd+Tab, toggle it with Ctrl+§ / Ctrl+\`
+
+Hammerspoon is there only for that Ghostty hotkey window with tabs. Ghostty's own quick terminal can't do tabs (yet), once it can, Hammerspoon can go.
 
 ### On Linux / SSH machines:
 
@@ -73,7 +74,7 @@ git -C ~/.dotfiles remote set-url origin git@github.com:ajur/dotfiles.git
 Small shell tool to help with keeping up to date, or remembering what I've added here.
 
 - `dots help` - what's available (aliases, functions, keys, scripts)
-- `dots update` - update everything (repo, links, zsh plugins, brew)
+- `dots update` - update everything (repo, links, zsh plugins, Brewfile, brew)
 
 It also checks for updates once a week in the background, and tells me when there's something new.
 

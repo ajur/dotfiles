@@ -148,6 +148,8 @@ usage: dots <command>
   update     pull repo, relink (install.sh), update zsh plugins, brew bundle + upgrade
   check      update zsh plugins, look for other updates (runs weekly in background)
   help       show this help
+
+Alt-E on the command line turns a description into a command (claude), see keys below.
 EOF
 
   list_help "$bold" "$reset"

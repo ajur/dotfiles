@@ -90,22 +90,3 @@ fi
 if command -v direnv >/dev/null; then
   eval "$(direnv hook zsh)"
 fi
-
-# sdkman: java sdk manager
-if [[ -s $HOME/.sdkman/bin/sdkman-init.sh ]]; then
-  export SDKMAN_DIR=$HOME/.sdkman
-
-  # put current version of each installed candidate on PATH, set JAVA_HOME, MAVEN_HOME, ...
-  for _c in $SDKMAN_DIR/candidates/*/current(N); do
-    path=($_c/bin $path)
-    export ${(U)${_c:h:t}}_HOME=$_c
-  done
-  unset _c
-
-  # load full sdkman only on first use of `sdk`
-  function sdk {
-    unfunction sdk
-    source $SDKMAN_DIR/bin/sdkman-init.sh
-    sdk "$@"
-  }
-fi

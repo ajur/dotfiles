@@ -53,14 +53,14 @@ fzf, fnm, direnv etc. are optional, they just kick in when installed.
 
 ### After install:
 
-Git name and email stay out of the repo, so put them in `~/.gitconfig.local`:
+Machine specific stuff stays out of the repo, in `.local` files picked up when present:
+- `~/.zshrc.local` - sourced at the end of zsh setup
+- `~/.gitconfig.local` - included by gitconfig, put git name and email there:
 ```
 [user]
 	name = Your Name
 	email = you@example.com
 ```
-
-Anything machine specific goes to `~/.zshrc.local`.
 
 Cloned over https, so to push, switch to ssh:
 ```
@@ -94,11 +94,6 @@ alias x='...'
 - `uv init`, `uv add <pkg>`, `uv run ...` for projects
 - `uv python install --default` for a fresh `python3` (otherwise it's Apple's old one)
 
-**Java**: [SDKMAN!](https://sdkman.io/)
-```
-curl -s "https://get.sdkman.io?rcupdate=false" | bash
-```
-
-**VS Code**: search commands for `shell command` to get `code` in terminal.
+**VS Code**: sign in via the Accounts icon and turn on Settings Sync to get settings and extensions back.
 
 **zsh complains about "insecure directories"**: `compaudit | xargs chmod g-w,o-w`

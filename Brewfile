@@ -12,7 +12,7 @@ brew "gh"
 brew "fzf"
 ## node version manager, switches on cd from .nvmrc
 brew "fnm"
-## per-dir env vars from .envrc (~/evo)
+## per-dir env vars from .envrc
 brew "direnv"
 
 ## find replacement: fd name, fd -e png, fd -x cmd
@@ -23,7 +23,7 @@ brew "ripgrep"
 brew "ugrep"
 ## cat with syntax highlighting and line numbers: bat file
 brew "bat"
-## jump to frecent dirs: z evo, zi to pick
+## jump to frecent dirs: z proj, zi to pick
 brew "zoxide"
 ## simplified man pages: tldr cmd
 brew "tlrc"
@@ -32,7 +32,7 @@ brew "jq"
 
 ## JS/TS runtime (deno -A, deno run)
 brew "deno"
-## launches project-pinned yarn (yarnPath) in ~/evo/js-clients
+## launches project-pinned yarn (yarnPath / packageManager)
 brew "yarn"
 ## python tools and projects: uv tool install, uvx, uv run
 brew "uv"
@@ -47,7 +47,7 @@ brew "exiftool"
 brew "graphviz"
 ## live GLSL shader preview: glslViewer file.frag
 brew "glslviewer"
-## sync www art assets with Cloudflare R2 (art:r2copy, art:r2sync)
+## sync with Cloudflare R2
 brew "rclone"
 
 # terminal
@@ -58,6 +58,8 @@ cask "hammerspoon"
 cask "font-daddy-time-mono-nerd-font"
 # local LLM server (localhost:11434), models in ~/.ollama
 cask "ollama-app"
+# editor, settings and extensions come from Settings Sync (Accounts icon)
+cask "visual-studio-code"
 
 # future: App Store apps (needs brew "mas") and GUI apps installed by hand,
 # adopt existing ones with: brew install --cask --adopt <app>
@@ -69,7 +71,6 @@ cask "ollama-app"
 # cask "arc"
 # cask "google-chrome"
 # cask "firefox"
-# cask "visual-studio-code"
 # cask "webstorm"
 # cask "obsidian"
 # cask "claude"

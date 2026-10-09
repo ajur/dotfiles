@@ -16,7 +16,7 @@ typeset -U path fpath
 # colored ls output on macOS/BSD
 export CLICOLOR=1
 # let less display color escape codes
-export LESS=-R
+export LESS=-FRX
 
 # history
 

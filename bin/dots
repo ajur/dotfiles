@@ -33,7 +33,7 @@ function cmd_update {
   if (( $+commands[brew] )); then
     step "brew"
     brew update
-    [[ $OSTYPE == darwin* ]] && brew bundle install --file $DOTFILES/Brewfile
+    [[ $OSTYPE == darwin* ]] && brew bundle install --no-upgrade --file $DOTFILES/Brewfile
     brew upgrade
   fi
 

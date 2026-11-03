@@ -1,0 +1,51 @@
+#!/usr/bin/env zsh
+
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+
+PREFIX="version https://git-lfs.github.com/spec/v1"
+ok=0
+failed=""
+
+for f in "$@"; do
+  [ -f "$f" ] || continue
+
+  # Pointers are ~130 bytes; the cap cheaply rules out real content files.
+  size=$(stat -f%z "$f")
+  [ "$size" -ge 1 ] && [ "$size" -le 300 ] || continue
+  head -c "${#PREFIX}" "$f" | grep -qF "$PREFIX" || continue
+
+  oid=$(sed -n 's/^oid sha256:\([0-9a-f]\{64\}\).*$/\1/p' "$f")
+  [ -n "$oid" ] || { failed="$failed $(basename "$f")"; continue; }
+
+  dir=$(dirname "$f")
+  root=$(cd "$dir" && git rev-parse --show-toplevel 2>/dev/null)
+  [ -n "$root" ] || { failed="$failed $(basename "$f")"; continue; }
+  root=$(cd "$root" && pwd -P)
+  rel="$(cd "$dir" && pwd -P)/$(basename "$f")"
+  rel="${rel#"$root"/}"
+
+  common=$(cd "$root" && git rev-parse --git-common-dir)
+  case "$common" in /*) ;; *) common="$root/$common" ;; esac
+
+  obj="$common/lfs/objects/${oid:0:2}/${oid:2:2}/$oid"
+
+  if [ ! -f "$obj" ]; then
+    (cd "$root" && git lfs fetch -X "" -I "$rel") >/dev/null 2>&1
+  fi
+  [ -f "$obj" ] || { failed="$failed $(basename "$f")"; continue; }
+
+  cp "$obj" "$f" || { failed="$failed $(basename "$f")"; continue; }
+  (cd "$root" && git add --update -- "$rel") >/dev/null 2>&1
+
+  if head -c "${#PREFIX}" "$f" | grep -qF "$PREFIX"; then
+    failed="$failed $(basename "$f")"
+  else
+    ok=$((ok + 1))
+  fi
+done
+
+if [ -n "$failed" ]; then
+  osascript -e "display notification \"Failed:$failed\" with title \"Git LFS fetch\""
+elif [ "$ok" -gt 0 ]; then
+  osascript -e "display notification \"Fetched $ok file(s)\" with title \"Git LFS fetch\""
+fi

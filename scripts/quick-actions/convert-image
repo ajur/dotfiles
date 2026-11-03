@@ -1,0 +1,18 @@
+#!/usr/bin/env zsh
+
+export PATH="/opt/homebrew/bin:$PATH"
+
+mode=$1
+shift
+
+for f in "$@"; do
+  case $mode in
+    webp)
+      [ "${f##*.}" = "png" ] || [ "${f##*.}" = "PNG" ] || continue
+      cwebp -q 85 "$f" -o "${f%.*}.webp"
+      ;;
+    jpg)
+      magick "$f" -background white -flatten -strip -quality 60 "${f%.*}-low.jpg"
+      ;;
+  esac
+done

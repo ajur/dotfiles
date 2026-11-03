@@ -78,6 +78,16 @@ Small shell tool to help with keeping up to date, or remembering what I've added
 
 It also checks for updates once a week in the background, and tells me when there's something new.
 
+### Finder Quick Actions
+
+Right-click → Quick Actions in Finder. Logic lives in `scripts/quick-actions`, the workflows are just thin wrappers,
+(re)created in `~/Library/Services` by `scripts/quick-actions/install` (`install.sh` runs it on mac):
+- Convert to MP4 (high) / MP4 (low) / GIF - `convert-video`
+- Convert to WebP / JPG - `convert-image` (WebP is PNG only, JPG is low quality `-low.jpg`)
+- Fetch from Git LFS - `fetch-git-lfs`, swaps LFS pointer files for the real content
+
+To change one, edit the script, or the list at the bottom of `install` and run it again.
+
 To get something into `dots help`, comment it with `##`:
 ```
 ## description of the alias/function below

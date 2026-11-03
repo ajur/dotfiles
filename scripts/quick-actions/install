@@ -1,0 +1,70 @@
+#!/bin/sh
+set -eu
+
+DIR=$(cd "$(dirname "$0")" && pwd)
+SERVICES="$HOME/Library/Services"
+
+workflow() {
+  name=$1 kind=$2 color=$3 icon=$4 script=$5 mode=${6:-}
+  bundle="$SERVICES/$name.workflow"
+
+  case $kind in
+    movie) uti=public.movie; input=com.apple.Automator.fileSystemObject.movie ;;
+    image) uti=public.image; input=com.apple.Automator.fileSystemObject.image ;;
+    item) uti=public.item; input=com.apple.Automator.fileSystemObject ;;
+  esac
+
+  rm -rf "$bundle"
+  mkdir -p "$bundle/Contents"
+
+  wflow="$bundle/Contents/document.wflow"
+  cp "$DIR/template.wflow" "$wflow"
+  plutil -replace actions.0.action.ActionParameters.COMMAND_STRING -string "\"$DIR/$script\"${mode:+ $mode} \"\$@\"" "$wflow"
+  plutil -replace workflowMetaData.inputTypeIdentifier -string "$input" "$wflow"
+  plutil -replace workflowMetaData.serviceInputTypeIdentifier -string "$input" "$wflow"
+  plutil -replace workflowMetaData.systemImageName -string "$icon" "$wflow"
+  plutil -replace workflowMetaData.backgroundColorName -string "$color" "$wflow"
+
+  cat > "$bundle/Contents/Info.plist" <<PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSServices</key>
+	<array>
+		<dict>
+			<key>NSBackgroundSystemColorName</key>
+			<string>$color</string>
+			<key>NSIconName</key>
+			<string>$icon</string>
+			<key>NSMenuItem</key>
+			<dict>
+				<key>default</key>
+				<string>$name</string>
+			</dict>
+			<key>NSMessage</key>
+			<string>runWorkflowAsService</string>
+			<key>NSRequiredContext</key>
+			<dict>
+				<key>NSApplicationIdentifier</key>
+				<string>com.apple.finder</string>
+			</dict>
+			<key>NSSendFileTypes</key>
+			<array>
+				<string>$uti</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>
+PLIST
+
+  echo "created ~/Library/Services/$name.workflow"
+}
+
+workflow "Convert to MP4 (high)" movie systemPinkColor   NSTouchBarCommunicationVideo convert-video mp4-high
+workflow "Convert to MP4 (low)"  movie systemOrangeColor NSTouchBarCommunicationVideo convert-video mp4-low
+workflow "Convert to GIF"        movie systemPurpleColor NSTouchBarCommunicationVideo convert-video gif
+workflow "Convert to WebP"       image systemPinkColor   NSTouchBarDocuments          convert-image webp
+workflow "Convert to JPG"        image systemOrangeColor NSTouchBarDocuments          convert-image jpg
+workflow "Fetch from Git LFS"    item  blackColor        NSTouchBarTransferDownload   fetch-git-lfs

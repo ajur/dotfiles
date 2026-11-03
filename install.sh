@@ -123,4 +123,7 @@ clone_plugins
 if [ "$PROFILE" = mac ]; then
   echo "-- macos settings"
   "$DOTFILES/macos.sh"
+
+  echo "-- quick actions"
+  "$DOTFILES/scripts/quick-actions/install"
 fi

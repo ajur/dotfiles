@@ -41,6 +41,8 @@ brew "uv"
 brew "ffmpeg"
 ## image conversion: magick mogrify, magick identify
 brew "imagemagick"
+## webp conversion: cwebp -q 85 in.png -o out.webp
+brew "webp"
 # image metadata, used by img-date-prefix
 brew "exiftool"
 ## graph rendering: dot file.txt
@@ -60,6 +62,8 @@ cask "font-daddy-time-mono-nerd-font"
 cask "ollama-app"
 # editor, settings and extensions come from Settings Sync (Accounts icon)
 cask "visual-studio-code"
+# browser
+cask "vivaldi"
 
 # future: App Store apps (needs brew "mas") and GUI apps installed by hand,
 # adopt existing ones with: brew install --cask --adopt <app>

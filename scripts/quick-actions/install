@@ -59,6 +59,11 @@ workflow() {
 </plist>
 PLIST
 
+  defaults export pbs - \
+    | plutil -replace "NSServicesStatus.(null) - $name - runWorkflowAsService" \
+        -json '{"presentation_modes":{"ContextMenu":true,"FinderPreview":true,"ServicesMenu":true,"TouchBar":true}}' -o - - \
+    | defaults import pbs -
+
   echo "created ~/Library/Services/$name.workflow"
 }
 
